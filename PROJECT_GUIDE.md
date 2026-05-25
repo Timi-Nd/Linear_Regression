@@ -41,7 +41,7 @@ I combined four different city files to create one master list. All data was dow
 After the computer studied the data, here is what it learned:
 
 *   **Lanes are the Big Driver**: The number of lanes is the biggest clue for traffic volume. More lanes = more cars = more wear.
-*   **Age Matters**: Older streets consistently carry a heavy load, especially in established neighborhoods.
+*   **Age and Traffic**: Older streets generally carry *less* traffic volume, but they face a different kind of stress—long-term structural neglect.
 *   **Buses add Stress**: Streets with transit routes are predicted to have more complex maintenance needs.
 
 ### Looking at the Charts:
@@ -79,8 +79,8 @@ If I followed the computer blindly, I would say: *"Old roads have less traffic, 
 I know what you are thinking: "How does a computer's guess help a real city?"
 
 ### How these insights translate to the real world:
-*   **The "High-Stress" Map**: My model found that Lane Count and Road Age are the biggest clues for traffic. In the real world, this means our newest, widest roads are working the hardest. I can now create a list of streets where the "Predicted Traffic" is much higher than what the road was built for.
-*   **Finding the "Quiet Giants"**: Some roads might have very old pavement but low traffic. My model helps identify these so I don't waste money over-engineering a quiet residential street just because it is old.
+*   **The "High-Stress" Map**: My model found that Lane Count and Road Surface Type are significant clues for traffic. In the real world, this means our newest, widest roads are working the hardest. I can now create a list of streets where the "Predicted Traffic" is much higher than what the road was built for.
+*   **Finding the "Quiet Giants"**: Some roads might have very old pavement but low traffic. My model helps identify these so I don't waste money over-engineering a quiet residential street just because it is old—while still keeping an eye on their maintenance needs.
 
 ### How this specifically helps the City:
 *   **Budgeting (Smart Spending)**: Instead of spreading the budget thin across every street, the City can use my `Saskatoon_Predictions.csv` to see exactly which segments are under the most pressure.
