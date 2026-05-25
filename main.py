@@ -24,10 +24,16 @@ def run_pipeline():
                    'route_id', 'Road_Surface_Type', 'Road_Structure_Type']
     target = 'TRAFFIC_VOLUME'
     
+    # Classification target for Logistic Regression
+    final_df['HIGH_TRAFFIC'] = (
+        final_df['TRAFFIC_VOLUME'] > final_df['TRAFFIC_VOLUME'].median()
+    ).astype(int)
+    target_class = 'HIGH_TRAFFIC'
+    
     print(f"Dataset loaded: {final_df.shape[0]} rows, {final_df.shape[1]} columns.")
     
-    # 3. MACHINE LEARNING (Multiple Linear Regression)
-    print("\n3. Training model (Gradient Descent)...")
+    # 2. MACHINE LEARNING (Multiple Linear Regression)
+    print("\n2. Training Linear Regression (Gradient Descent)...")
     X = final_df[ml_features].values
     y = final_df[target].values
     
@@ -37,34 +43,98 @@ def run_pipeline():
     X_scaled = (X - X_mean) / X_std
     y_scaled = (y - y_mean) / y_std
     
-    # Gradient Descent
-    w = np.zeros(len(ml_features))
-    b = 0.0
+    # Linear Regression Gradient Descent
+    w_lin = np.zeros(len(ml_features))
+    b_lin = 0.0
     lr = 0.01
     m = len(y)
+    lin_cost_history = []
     for i in range(5000):
-        error = (np.dot(X_scaled, w) + b) - y_scaled
-        w -= lr * (np.dot(X_scaled.T, error) / m)
-        b -= lr * (np.sum(error) / m)
+        error = (np.dot(X_scaled, w_lin) + b_lin) - y_scaled
+        w_lin -= lr * (np.dot(X_scaled.T, error) / m)
+        b_lin -= lr * (np.sum(error) / m)
+        cost = (1/(2*m)) * np.sum(error**2)
+        lin_cost_history.append(cost)
         if i % 1000 == 0:
-            cost = (1/(2*m)) * np.sum(error**2)
             print(f"   Iteration {i}: Cost {cost:.6f}")
             
     # Predictions
-    y_pred_scaled = np.dot(X_scaled, w) + b
+    y_pred_scaled = np.dot(X_scaled, w_lin) + b_lin
     y_pred = (y_pred_scaled * y_std) + y_mean
+
+    # 3. MACHINE LEARNING (Logistic Regression)
+    print("\n3. Training Logistic Regression (Gradient Descent)...")
+    y_class = final_df[target_class].values
+    
+    # Sigmoid function
+    def sigmoid(z):
+        return 1 / (1 + np.exp(-np.clip(z, -500, 500)))
+
+    # Logistic Regression Gradient Descent
+    w_log = np.zeros(len(ml_features))
+    b_log = 0.0
+    log_cost_history = []
+    for i in range(5000):
+        z = np.dot(X_scaled, w_log) + b_log
+        h = sigmoid(z)
+        error = h - y_class
+        w_log -= lr * (np.dot(X_scaled.T, error) / m)
+        b_log -= lr * (np.sum(error) / m)
+        cost = (-1/m) * np.sum(y_class * np.log(h + 1e-15) + (1 - y_class) * np.log(1 - h + 1e-15))
+        log_cost_history.append(cost)
+        if i % 1000 == 0:
+            print(f"   Iteration {i}: Cost {cost:.6f}")
+            
+    # Classification Predictions
+    y_prob = sigmoid(np.dot(X_scaled, w_log) + b_log)
+    y_pred_class = (y_prob >= 0.5).astype(int)
+    accuracy = np.mean(y_pred_class == y_class)
+    print(f"Logistic Regression Accuracy: {accuracy:.2%}")
     
     # 4. VISUALIZATION & EXPORT
     print("\n4. Generating insights and saving plots...")
-    
-    # Feature Importance
+
+    # Gradient Descent Convergence
     plt.figure(figsize=(10, 6))
-    sorted_idx = np.argsort(np.abs(w))
-    plt.barh([ml_features[i] for i in sorted_idx], w[sorted_idx], 
-             color=['skyblue' if x >= 0 else 'salmon' for x in w[sorted_idx]])
-    plt.title("Feature Importance (Relative Impact on Traffic)")
+    plt.plot(lin_cost_history, label='Linear Regression Cost', color='blue')
+    plt.plot(log_cost_history, label='Logistic Regression Cost', color='green')
+    plt.xlabel("Iterations")
+    plt.ylabel("Cost (Error)")
+    plt.title("Gradient Descent Convergence")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('gd_convergence.png')
+
+    # Classification Results (Confusion Matrix style)
+    from sklearn.metrics import confusion_matrix
+    cm = confusion_matrix(y_class, y_pred_class)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=['Low Traffic', 'High Traffic'], 
+                yticklabels=['Low Traffic', 'High Traffic'])
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.title(f'Logistic Regression: Classification Results (Acc: {accuracy:.2%})')
+    plt.tight_layout()
+    plt.savefig('classification_matrix.png')
+    
+    # Feature Importance (Linear Regression)
+    plt.figure(figsize=(10, 6))
+    sorted_idx_lin = np.argsort(np.abs(w_lin))
+    plt.barh([ml_features[i] for i in sorted_idx_lin], w_lin[sorted_idx_lin], 
+             color=['skyblue' if x >= 0 else 'salmon' for x in w_lin[sorted_idx_lin]])
+    plt.title("Linear Regression: Feature Importance")
     plt.tight_layout()
     plt.savefig('feature_importance.png')
+
+    # Feature Importance (Logistic Regression)
+    plt.figure(figsize=(10, 6))
+    sorted_idx_log = np.argsort(np.abs(w_log))
+    plt.barh([ml_features[i] for i in sorted_idx_log], w_log[sorted_idx_log], 
+             color=['teal' if x >= 0 else 'orange' for x in w_log[sorted_idx_log]])
+    plt.title("Logistic Regression: Feature Importance")
+    plt.tight_layout()
+    plt.savefig('feature_importance_logistic.png')
     
     # Actual vs Predicted
     plt.figure(figsize=(8, 8))
@@ -100,13 +170,19 @@ def run_pipeline():
     
     # Save results
     final_df['PREDICTED_TRAFFIC'] = y_pred
+    final_df['HIGH_TRAFFIC_PROB'] = y_prob
+    final_df['HIGH_TRAFFIC_PRED'] = y_pred_class
     final_df['RESIDUALS'] = y - y_pred
     final_df.to_csv('Saskatoon_Predictions.csv', index=False)
     
     with open('Model_Weights.txt', 'w') as f:
-        f.write("--- Model weights ---\n")
-        for f_name, weight in zip(ml_features, w):
+        f.write("--- Linear Regression Weights ---\n")
+        for f_name, weight in zip(ml_features, w_lin):
             f.write(f"{f_name}: {weight:.6f}\n")
+        f.write("\n--- Logistic Regression Weights ---\n")
+        for f_name, weight in zip(ml_features, w_log):
+            f.write(f"{f_name}: {weight:.6f}\n")
+        f.write(f"\nClassification Accuracy: {accuracy:.2%}\n")
             
     print("\nPipeline complete! All files, plots, and insights are ready.")
 
