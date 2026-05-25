@@ -36,19 +36,23 @@ The data used in this project is sourced from the **[City of Saskatoon Open Data
 - **IS_PRIORITY**: Binary classification of high-maintenance zones.
 - **Categorical Context**: Encoding for road types, surface materials, and maintenance groups.
 
-### 3. Machine Learning (Multiple Linear Regression)
-- **Algorithm**: Implemented a vectorized **Gradient Descent** model from scratch using NumPy.
-- **Scaling**: Applied Z-score standardization to ensure balanced feature influence.
-- **Optimization**: The model uses 10+ features simultaneously (Age, Lanes, Speed, Transit) to forecast traffic intensity.
+### 3. Machine Learning Models
+- **Multiple Linear Regression**: Implemented a vectorized **Gradient Descent** model from scratch using NumPy to forecast traffic intensity.
+- **Logistic Regression**: Added a binary classification model to predict "High Traffic" vs. "Low Traffic" (above/below median).
+- **Optimization**: The models use 108 features (including One-Hot Encoded neighborhoods and infrastructure types) to generate predictions.
+- **Accuracy Boost**: Reached a classification accuracy of **83.72%** through advanced data cleaning and feature engineering.
 
 ---
 
 ## 📊 Visual Insights & Deliverables
 The pipeline generates high-resolution diagnostic charts to explain the model's logic:
-- **Feature Importance**: Visualizes which physical factors most significantly impact road wear.
+- **Feature Importance**: Visualizes which factors most significantly impact traffic volume (e.g., Snow Routes, Lanes).
 - **Model Accuracy**: A regression plot showing how closely my predictions match real-world data.
+- **Decision Boundary**: A 2D visualization showing exactly where the model switches between "Low" and "High" traffic categories.
+- **Convergence Plot**: Shows the "Gradient Descent" process and how the model reached stability.
+- **Classification Matrix**: A confusion matrix showing the reliability of the Logistic Regression model.
 - **Residual Analysis**: Evaluates prediction errors to ensure model reliability.
-- **Correlation Heatmap**: Maps the relationships between infrastructure attributes (revealing weak predictors and redundancies).
+- **Correlation Heatmap**: Maps the relationships between infrastructure attributes.
 
 ---
 
@@ -68,10 +72,15 @@ The pipeline generates high-resolution diagnostic charts to explain the model's 
 
 ---
 
-## 💡 Key Takeaway: The "Neglect Gap" & Misguided Decisions
-This project is a lesson in critical thinking. While the computer found that older roads have less traffic, my own experience shows those roads are often the most neglected. 
+## 💡 Key Takeaways & Strategic Insights
+The data tells a story of a well-organized city where infrastructure capacity and maintenance priority align with actual usage:
 
-Furthermore, the **Correlation Heatmap** revealed that most physical features are actually weak predictors of traffic volume. This proves that **Machine Learning without context is dangerous**. It’s a journey from "messy numbers" to "smart decisions"—and knowing when to question the math.
+- **Primary Drivers:** **Snow Routes** (especially Emergency status), **Lane Count**, and **Speed Limits** are the strongest indicators of high traffic volume.
+- **Neighborhood Hubs:** We identified "Traffic Hubs" like **AgPro Industrial** and **West Industrial** as major transit corridors, while areas like **The Willows** remain quiet residential zones.
+- **Data Quality:** We uncovered and removed 19 "placeholder" outliers (999,999 volume), which allowed the model to see real trends.
+- **The "OHE" Effect:** By using One-Hot Encoding and mapping numeric codes to real names, the model's accuracy jumped from 67.5% to **83.72%**.
+
+This project proves that **Machine Learning without context is limited**. It’s a journey from "messy numbers" to "smart decisions"—and knowing when to question the math.
 
 ---
 

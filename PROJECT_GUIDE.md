@@ -37,17 +37,23 @@ I combined four different city files to create one master list. All data was dow
 
 ---
 
-## 3. What the Model Found
-After the computer studied the data, here is what it learned:
+## 3. What the Model Learned (The Real Insights)
+After cleaning the data and training the models, we can see the real story of Saskatoon's traffic:
 
-*   **Lanes are the Big Driver**: The number of lanes is the biggest clue for traffic volume. More lanes = more cars = more wear.
-*   **Age and Traffic**: Older streets generally carry *less* traffic volume, but they face a different kind of stress—long-term structural neglect.
-*   **Buses add Stress**: Streets with transit routes are predicted to have more complex maintenance needs.
+### 1. Key Drivers of Traffic Volume
+*   **Snow Routes & Priority**: Roads designated as **Snow Routes** (especially "Emergency" or "Yes" status) are the strongest indicators of high traffic. This confirms the city's maintenance priority aligns with usage.
+*   **Physical Capacity**: **LANE_COUNT** is a significant predictor. More lanes correlate strongly with higher volume.
+*   **Speed Limits**: Higher speed roads are significantly more likely to be classified as "High Traffic" corridors.
 
-### Looking at the Charts:
-*   **Feature Importance**: This shows which factors (like lanes or age) the computer cared about most.
-*   **Actual vs. Predicted**: This shows how "right" the computer was. If the dots are close to the line, the computer did a good job!
-*   **Residuals (The Errors)**: This shows us where the computer was wrong. These "errors" are actually useful—they tell us which streets are behaving strangely and might need a human to go look at them.
+### 2. Neighborhood-Specific Insights
+By mapping numeric codes to actual names, we can identify the city's traffic hubs:
+*   **High-Volume Hubs**: Industrial areas like **AgPro Industrial**, **West Industrial**, and **Meadowgreen** are major transit corridors.
+*   **Low-Volume Residential**: Neighborhoods like **The Willows**, **Stonebridge Urban Centre**, and **River Heights** are primarily quieter zones with lower through-traffic.
+
+### 3. Model Performance & Reliability
+*   **High Accuracy**: The Logistic Regression model predicts "High Traffic" vs. "Low Traffic" with **83.72% accuracy**.
+*   **Stable Optimization**: The "Gradient Descent" process (visible in `gd_convergence.png`) shows the model reached a stable cost level.
+*   **Error Analysis**: `residual_analysis.png` shows most prediction errors are small, though the model is conservative on extremely high-volume roads.
 
 ---
 
@@ -65,12 +71,12 @@ Instead of trying to check 4,000+ streets one by one, a city engineer can use th
 
 ---
 
-## 💡 The Big Lesson: Misguided Decisions
-This project taught me a very important lesson in ML: **The data doesn't always tell the whole story.**
+### 💡 The Big Lesson: Data Cleaning & Interpretability
+This project taught me that **the quality of your data is more important than the complexity of your code.**
 
-If I followed the computer blindly, I would say: *"Old roads have less traffic, so they aren't a priority."* 
-
-**This would be a misguided decision.** Why? Because an old road with low traffic can still be a safety hazard if it is neglected. This project proves that my goal as a data analyst is not just to run models, but to understand the reality behind the numbers.
+*   **Outlier Detection**: We discovered that 19 roads had a volume of `999,999`. These were placeholders, not real counts. Removing them allowed the model to see real trends.
+*   **The "OHE" Effect**: Using One-Hot Encoding proved that the relationship between neighborhood and traffic isn't a simple scale; every area has its own unique impact.
+*   **Human-Readable Insights**: Mapping cryptic codes (like `Neighbourhood_Name_12`) to real names (like `River Heights`) transformed the model from a "black box" into a tool that city stakeholders can actually understand.
 
 
 ---
