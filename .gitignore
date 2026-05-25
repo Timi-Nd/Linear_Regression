@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.class
+
+# Data files
+*.csv
+!Saskatoon_Infrastructure_Ready.csv
+!Saskatoon_Predictions.csv
+
+# Large binary data
+*.pbf
+
+# Visualization outputs
+*.png
+
+# Model weights
+Model_Weights.txt
+
+# Virtual environments
+venv/
+env/
+
+# System files
+.DS_Store
+Thumbs.db
