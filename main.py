@@ -11,7 +11,8 @@ import os
 sns.set_theme(style="whitegrid", context="talk")
 
 def run_pipeline():
-    print("--- Timi Ndubuisis ML Journey: Saskatoon Predictive Maintenance ---")
+    print("--- Timi Ndubuisi's ML Journey: Practice & Critical Analysis ---")
+    print("Goal: Demonstrate how data can lead to insights—and misguided decisions.")
     
     # 1. LOAD & CLEAN
     print("\n1. Loading and cleaning data...")
@@ -125,6 +126,14 @@ def run_pipeline():
     plt.savefig('residual_analysis.png')
     
     # Correlation Heatmap
+    # A heatmap shows how much each feature relates to others and the target.
+    # Numbers near 1.0 (Darker Red) = Strong Positive relationship.
+    # Numbers near -1.0 (Darker Blue) = Strong Negative relationship.
+    # Numbers near 0 (White/Light) = Weak or no relationship.
+    #
+    # TIMI'S INSIGHT: The heatmap shows that most features correlate weakly with TRAFFIC_VOLUME.
+    # This is a major lesson: the code works, but the data needs better 'clues' to be truly accurate!
+    # Notable findings: Surface/Structure redundancy (0.88), Maintenance/Age (0.26), Speed/Age (-0.25).
     plt.figure(figsize=(12, 10))
     sns.heatmap(final_df[ml_features + [target]].corr(), annot=True, cmap='coolwarm', fmt=".2f")
     plt.title("Feature Correlation Heatmap")
