@@ -14,59 +14,17 @@ def run_pipeline():
     print("--- Timi Ndubuisi's ML Journey: Practice & Critical Analysis ---")
     print("Goal: Demonstrate how data can lead to insights—and misguided decisions.")
     
-    # 1. LOAD & CLEAN
-    print("\n1. Loading and cleaning data...")
-    df_roads = pd.read_csv('Road_-_Divided.csv')
-    df_routes = pd.read_csv('Transit_Routes.csv')
-    
-    # Remove rows missing critical data
-    critical_columns = ['TRAFFIC_VOLUME', 'ROAD_LENGTH']
-    df_roads = df_roads.dropna(subset=critical_columns)
-    
-    # 2. FEATURE ENGINEERING
-    print("2. Engineering features...")
-    # Road Age calculation
-    df_roads['YEAR_CONSTRUCTED'] = pd.to_numeric(df_roads['YEAR_CONSTRUCTED'], errors='coerce')
-    df_roads.loc[(df_roads['YEAR_CONSTRUCTED'] > 2026) | (df_roads['YEAR_CONSTRUCTED'] < 1800), 'YEAR_CONSTRUCTED'] = np.nan
-    df_roads['ROAD_AGE'] = 2026 - df_roads['YEAR_CONSTRUCTED']
-    df_roads['ROAD_AGE'] = df_roads['ROAD_AGE'].fillna(df_roads['ROAD_AGE'].median())
-    
-    # Priority Flag
-    df_roads['IS_PRIORITY'] = df_roads['PRIORITY_MAINTENANCE'].apply(lambda x: 1 if x == 4 else 0)
-    
-    # Transit Integration (Substring matching logic)
-    road_streets = df_roads[['STREET_NAME']].dropna().drop_duplicates()
-    road_streets['STREET_NAME_CLEAN'] = road_streets['STREET_NAME'].astype(str).str.lower().str.strip()
-    df_routes['route_desc_clean'] = df_routes['route_long_name'].astype(str).str.lower()
-    
-    mapping = []
-    for _, road_row in road_streets.iterrows():
-        street = road_row['STREET_NAME_CLEAN']
-        if len(street) < 3: continue
-        for _, route_row in df_routes.iterrows():
-            if street in route_row['route_desc_clean']:
-                mapping.append({'STREET_NAME': road_row['STREET_NAME'], 'route_id': route_row['route_id']})
-                break
-    
-    df_mapping = pd.DataFrame(mapping)
-    final_df = pd.merge(df_roads, df_mapping, on='STREET_NAME', how='left')
-    
-    # Impute missing transit and category values
-    cols_to_fill = ['route_id', 'Snow_Route', 'Snow_Removal_Designate', 'Maintenance_Group', 
-                    'Neighbourhood_Name', 'Road_Surface_Type', 'Road_Structure_Type']
-    for col in cols_to_fill:
-        final_df[col] = final_df[col].fillna(0).astype(int)
+    # 1. LOAD PREPARED DATA
+    print("\n1. Loading prepared infrastructure data...")
+    final_df = pd.read_csv('Saskatoon_Infrastructure_Ready.csv')
     
     # Select features for ML
     ml_features = ['ROAD_AGE', 'LANE_COUNT', 'SPEED_LIMIT', 'Snow_Route', 
                    'Snow_Removal_Designate', 'Maintenance_Group', 'Neighbourhood_Name',
                    'route_id', 'Road_Surface_Type', 'Road_Structure_Type']
     target = 'TRAFFIC_VOLUME'
-    identifiers = ['STREET_NAME', 'OBJECTID', 'ROAD_ID']
     
-    final_df = final_df[ml_features + [target] + identifiers]
-    final_df.to_csv('Saskatoon_Infrastructure_Ready.csv', index=False)
-    print(f"Dataset finalized: {final_df.shape[0]} rows, {final_df.shape[1]} columns.")
+    print(f"Dataset loaded: {final_df.shape[0]} rows, {final_df.shape[1]} columns.")
     
     # 3. MACHINE LEARNING (Multiple Linear Regression)
     print("\n3. Training model (Gradient Descent)...")
